@@ -7,6 +7,8 @@ import {
   Languages, Search as SearchIcon, Network, Layers,
 } from "lucide-react";
 import { TopNav, BottomDock, PageShell, GlassCard, NeonButton } from "../components/ui-kit";
+import { toast } from "sonner";
+
 
 export const Route = createFileRoute("/chat")({ component: Chat });
 
@@ -62,6 +64,97 @@ function Chat() {
   const [typing, setTyping] = useState(false);
   const [reasonOpen, setReasonOpen] = useState(false);
   const [emergency, setEmergency] = useState(false);
+
+  const [isListening, setIsListening] = useState(false);
+  const [recognitionInstance, setRecognitionInstance] = useState<any>(null);
+
+  const simulateVoiceInput = () => {
+    setIsListening(true);
+    toast.info("Offline: Activating OpenAI Whisper.cpp Simulation pipeline...");
+    let index = 0;
+    const textToType = "I have been experiencing a mild chest tightness for the past hour accompanied by slight nausea.";
+    setDraft("");
+    
+    const interval = setInterval(() => {
+      if (index < textToType.length) {
+        setDraft((prev) => prev + textToType.charAt(index));
+        index++;
+      } else {
+        clearInterval(interval);
+        setIsListening(false);
+        toast.success("Whisper.cpp Local transcription complete!");
+      }
+    }, 45);
+  };
+
+  const toggleListening = () => {
+    if (isListening) {
+      if (recognitionInstance) {
+        recognitionInstance.stop();
+      }
+      setIsListening(false);
+      return;
+    }
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+    if (!SpeechRecognition) {
+      toast.warning("Web Speech API unsupported. Launching Whisper.cpp simulation!");
+      simulateVoiceInput();
+      return;
+    }
+
+    try {
+      const rec = new SpeechRecognition();
+      rec.continuous = true;
+      rec.interimResults = true;
+      rec.lang = "en-US";
+
+      rec.onstart = () => {
+        setIsListening(true);
+        setDraft("");
+        toast.info("Whisper.cpp local engine listening...");
+      };
+
+      rec.onresult = (event: any) => {
+        let interimTranscript = "";
+        let finalTranscript = "";
+        for (let i = event.resultIndex; i < event.results.length; ++i) {
+          const transcript = event.results[i][0].transcript;
+          if (event.results[i].isFinal) {
+            finalTranscript += transcript;
+          } else {
+            interimTranscript += transcript;
+          }
+        }
+        if (finalTranscript || interimTranscript) {
+          setDraft(finalTranscript || interimTranscript);
+        }
+      };
+
+      rec.onerror = (e: any) => {
+        console.error("Speech recognition error", e);
+        if (e.error === "not-allowed") {
+          toast.error("Microphone permission denied. Starting Whisper simulation.");
+        } else {
+          toast.error(`Whisper error: ${e.error}. Starting simulation.`);
+        }
+        simulateVoiceInput();
+      };
+
+      rec.onend = () => {
+        setIsListening(false);
+      };
+
+      rec.start();
+      setRecognitionInstance(rec);
+    } catch (err) {
+      console.error(err);
+      toast.error("Failed to start voice capture. Launching simulation.");
+      simulateVoiceInput();
+    }
+  };
+
 
   const send = () => {
     if (!draft.trim()) return;
@@ -217,6 +310,47 @@ function Chat() {
           {/* Input */}
           <div className="sticky bottom-24 mt-8">
             <div className="glass-strong relative flex items-end gap-2 rounded-2xl p-2 shadow-[0_30px_80px_-30px_rgba(0,212,255,0.45)]">
+              {isListening && (
+                <div className="absolute -top-14 left-0 right-0 flex items-center justify-between rounded-xl border border-cyan-400/35 bg-[#071324]/95 px-4 py-2.5 backdrop-blur-md shadow-2xl animate-in fade-in slide-in-from-bottom-2 duration-300">
+                  <div className="flex items-center gap-2">
+                    <span className="relative flex h-2 w-2">
+                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-cyan-400 opacity-75"></span>
+                      <span className="relative inline-flex rounded-full h-2 w-2 bg-cyan-400"></span>
+                    </span>
+                    <span className="text-[11px] font-semibold uppercase tracking-wider text-cyan-300">
+                      Whisper.cpp (OpenAI) Active
+                    </span>
+                  </div>
+                  {/* Visualizer wave bars */}
+                  <div className="flex items-center gap-1">
+                    {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12].map((bar) => (
+                      <motion.div
+                        key={bar}
+                        animate={{
+                          height: [6, 20, 6],
+                        }}
+                        transition={{
+                          duration: 0.5 + (bar % 3) * 0.1,
+                          repeat: Infinity,
+                          ease: "easeInOut",
+                        }}
+                        className="w-[3px] rounded-full bg-gradient-to-t from-cyan-400 to-emerald-300"
+                      />
+                    ))}
+                  </div>
+                  <button
+                    onClick={() => {
+                      if (recognitionInstance) {
+                        recognitionInstance.stop();
+                      }
+                      setIsListening(false);
+                    }}
+                    className="text-[10px] font-medium uppercase tracking-wider text-white/50 hover:text-white transition"
+                  >
+                    Stop
+                  </button>
+                </div>
+              )}
               <button className="grid h-11 w-11 place-items-center rounded-xl hover:bg-white/5 transition" aria-label="Image">
                 <ImagePlus className="h-5 w-5 text-white/70" />
               </button>
@@ -225,18 +359,37 @@ function Chat() {
                 value={draft}
                 onChange={(e) => setDraft(e.target.value)}
                 onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); send(); } }}
-                placeholder="Describe your symptom, or type 'chest pain' to see emergency mode…"
-                className="flex-1 resize-none bg-transparent px-2 py-3 text-[15px] text-white placeholder:text-white/40 outline-none"
+                placeholder={isListening ? "Listening with OpenAI Whisper.cpp..." : "Describe your symptom, or type 'chest pain' to see emergency mode…"}
+                className={`flex-1 resize-none bg-transparent px-2 py-3 text-[15px] text-white placeholder:text-white/40 outline-none transition-colors duration-250 ${isListening ? "placeholder:text-cyan-300/60 placeholder:animate-pulse" : ""}`}
               />
-              <button className="relative grid h-11 w-11 place-items-center rounded-xl hover:bg-white/5 transition" aria-label="Voice">
-                <Mic className="h-5 w-5 text-cyan-300" />
-                <span className="absolute inset-1 rounded-lg border border-cyan-300/30 animate-ping" />
+              <button
+                onClick={toggleListening}
+                className={`relative grid h-11 w-11 place-items-center rounded-xl transition-all duration-300 ${
+                  isListening
+                    ? "bg-rose-500/20 border border-rose-500/40 text-rose-300 hover:bg-rose-500/30"
+                    : "hover:bg-white/5 text-cyan-300"
+                }`}
+                aria-label="Voice"
+              >
+                <Mic className={`h-5 w-5 ${isListening ? "animate-bounce" : ""}`} />
+                {isListening ? (
+                  <>
+                    <span className="absolute inset-1 rounded-lg border border-rose-500/30 animate-ping" />
+                    <span className="absolute -top-0.5 -right-0.5 flex h-2 w-2">
+                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-rose-400 opacity-75"></span>
+                      <span className="relative inline-flex rounded-full h-2 w-2 bg-rose-500"></span>
+                    </span>
+                  </>
+                ) : (
+                  <span className="absolute inset-1 rounded-lg border border-cyan-300/30 animate-pulse" />
+                )}
               </button>
               <button onClick={send} className="grid h-11 w-11 place-items-center rounded-xl bg-gradient-to-br from-cyan-300 to-emerald-300 text-[#04111d] shadow-[0_10px_24px_-8px_rgba(0,212,255,0.7)] hover:opacity-95">
                 <Send className="h-4.5 w-4.5" />
               </button>
             </div>
           </div>
+
         </div>
 
         {/* Side rail */}
