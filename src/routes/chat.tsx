@@ -156,27 +156,64 @@ function Chat() {
   };
 
 
-  const send = () => {
+  const send = async () => {
     if (!draft.trim()) return;
     const userMsg: Msg = { role: "user", content: draft };
-    const isEmerg = /chest pain|stroke|unconscious|bleeding|108|emergency|can.?t breathe/i.test(draft);
-    setEmergency(isEmerg);
     setMessages((m) => [...m, userMsg]);
+    
+    const currentDraft = draft;
     setDraft("");
     setTyping(true);
-    setTimeout(() => {
-      setMessages((m) => [...m, {
-        role: "ai",
-        confidence: 86 + Math.floor(Math.random() * 10),
-        content: isEmerg
-          ? "⚠️ Possible emergency. Call **108** immediately and follow on-screen first-aid steps."
-          : "Based on what you described, here's a structured assessment with differentials, red flags, and next steps tailored to your context.",
-        citations: [{ src: "WHO Clinical Guidelines", tag: "Guideline" }, { src: "NIH MedlinePlus", tag: "Reference" }],
-        emergency: isEmerg,
-      }]);
+
+    try {
+      const response = await fetch("http://localhost:8000/api/v2/chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ message: currentDraft, language: "en" }),
+      });
+      
+      if (!response.ok) {
+        throw new Error("Backend response error");
+      }
+      
+      const data = await response.json();
+      
+      setEmergency(data.emergency);
+      setMessages((m) => [
+        ...m,
+        {
+          role: "ai",
+          confidence: data.confidence,
+          content: data.answer,
+          citations: data.citations,
+          emergency: data.emergency,
+        },
+      ]);
+      toast.success("Response received from Local FastAPI Triage!");
+    } catch (error) {
+      console.error("API call failed, running graceful fallback...", error);
+      const isEmerg = /chest pain|stroke|unconscious|bleeding|108|emergency|can.?t breathe/i.test(currentDraft);
+      setEmergency(isEmerg);
+      setMessages((m) => [
+        ...m,
+        {
+          role: "ai",
+          confidence: 85 + Math.floor(Math.random() * 10),
+          content: isEmerg
+            ? "⚠️ Emergency triage activated. Please contact **108** or visit the nearest emergency department immediately."
+            : `Symptoms analyzed. Please rest, hydrate, and monitor your symptoms. (Local Triage Offline Fallback)`,
+          citations: [
+            { src: "WHO General Guidelines (Offline Fallback)", tag: "Guideline" },
+          ],
+          emergency: isEmerg,
+        },
+      ]);
+      toast.warning("Backend offline. Bypassed to offline triage mode.");
+    } finally {
       setTyping(false);
-    }, 1400);
+    }
   };
+
 
   return (
     <PageShell>
