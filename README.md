@@ -1,204 +1,178 @@
-# 🏥 HealthDesk P10 — Privacy-First Offline Medical AI Assistant
+<p align="center">
+  <img src="https://raw.githubusercontent.com/mithilP007/Health-desk/main/assets/logo.png" alt="HealthDesk Pro" width="120">
+</p>
 
-HealthDesk P10 is a fully offline, privacy-first medical AI system built using open-source tools like Ollama, AnythingLLM, Docker, and WHO/NIH medical documents.
+<h1 align="center">🏥 HealthDesk Pro</h1>
 
-It provides safe, citation-based health information without cloud APIs or data leakage and is designed for academic demo + real-world AI healthcare simulation.
+<p align="center">
+  <b>Privacy-First Offline Medical AI with Advanced Reasoning</b>
+</p>
 
----
+<p align="center">
+  <a href="#features">Features</a> •
+  <a href="#architecture">Architecture</a> •
+  <a href="#installation">Installation</a> •
+  <a href="#usage">Usage</a> •
+  <a href="#team">Team</a>
+</p>
 
-## 🚀 Project Goal
-
-Build a **fully offline medical AI assistant** that:
-
-- Works without internet after setup
-- Uses local LLMs (Ollama)
-- Answers only from WHO/NIH verified documents
-- Prevents hallucination and unsafe responses
-- Detects medical emergencies automatically
-- Supports 3-person team collaboration
-- Runs as a web app demo (localhost)
-
----
-
-## 🧠 System Architecture
-
-
-┌──────────────────────────────────────────────┐
-│ Shared Machine (16GB RAM) │
-├──────────────────────────────────────────────┤
-│ AnythingLLM (RAG UI) → Port 3001 │
-│ Ollama (LLM Engine) → Port 11434 │
-│ LanceDB (Vector DB) │
-│ WHO / NIH Medical PDFs │
-└──────────────────────────────────────────────┘
-
+<p align="center">
+  <img src="https://img.shields.io/badge/version-2.0.0-blue.svg">
+  <img src="https://img.shields.io/badge/license-MIT-green.svg">
+  <img src="https://img.shields.io/badge/python-3.10+-blue.svg">
+  <img src="https://img.shields.io/badge/react-18+-61DAFB.svg">
+  <img src="https://img.shields.io/badge/ollama-local-orange.svg">
+  <img src="https://img.shields.io/badge/status-active-success.svg">
+</p>
 
 ---
 
-## 👥 Team Structure
+## 🚨 Problem
 
-### 👤 Member 1 — Engine Builder
-- Ollama setup (Gemma 3 / Phi models)
-- Docker configuration
-- Backend API + system setup
-- Multi-user environment setup
+People search symptoms on Google and get:
+- Wrong medical advice
+- Ads instead of answers
+- Privacy leakage to cloud servers
 
-### 📚 Member 2 — Knowledge Engineer
-- WHO / NIH medical dataset collection
-- PDF ingestion into RAG system
-- Chunk optimization (800 tokens recommended)
-- Citation accuracy validation
+No **offline, private, reliable medical AI** exists for rural + low-internet areas.
 
-### 🛡️ Member 3 — Safety Guardian
-- System prompts design
-- Emergency detection rules
-- Hallucination testing
-- Ethics documentation
-- Final demo presentation
+---
+
+## 💡 Solution
+
+**HealthDesk Pro** is a **fully offline medical AI system** that:
+
+- Runs locally (no internet required)
+- Uses WHO / NIH documents only
+- Gives cited medical answers
+- Detects emergencies instantly
+- Supports multiple Indian languages
+
+---
+
+## ✨ Features
+
+### 🔒 Privacy First
+- 100% offline processing
+- No cloud APIs
+- No data tracking
+
+### 🧠 Medical Intelligence
+- RAG-based document QA
+- WHO / NIH citations
+- Confidence scoring
+
+### 🚨 Emergency Detection
+- Chest pain → instant emergency alert
+- Stroke detection
+- Breathing difficulty alerts
+- Auto suggests calling 108 (India)
+
+### 🌐 Multilingual
+- English
+- Tamil
+- Hindi
+- Telugu
+- +200 languages via models
+
+---
+
+## 🏗️ Architecture
+
+
+Frontend (React)
+↓
+FastAPI Backend
+↓
+RAG Engine (ChromaDB)
+↓
+Ollama Models
+↓
+WHO / NIH Documents
+
 
 ---
 
 ## 🛠️ Tech Stack
 
-| Component | Tool |
-|----------|------|
-| LLM Engine | Ollama |
-| Model | Gemma 3 4B / Phi-4 Mini |
-| RAG System | AnythingLLM |
-| Embeddings | nomic-embed-text |
-| Vector DB | LanceDB |
-| Backend | FastAPI (optional) |
-| Deployment | Docker |
-| Data Source | WHO / NIH / CDC PDFs |
+- Frontend: React 18
+- Backend: FastAPI
+- LLM: Ollama
+- Models: Gemma 3 / DeepSeek / Qwen
+- Vector DB: ChromaDB
+- Embeddings: nomic-embed-text
 
 ---
 
-## ⚙️ Setup Instructions
+## 📦 Installation
 
-### 1️⃣ Install Ollama
+### 1. Clone Repo
 ```bash
-curl -fsSL https://ollama.com/install.sh | sh
-ollama serve
-2️⃣ Pull Models
+git clone https://github.com/mithilP007/Health-desk.git
+cd Health-desk
+2. Install Ollama Models
 ollama pull gemma3:4b
+ollama pull deepseek-r1:14b
+ollama pull qwen2.5:14b
 ollama pull nomic-embed-text
-3️⃣ Start System
-docker compose up -d
-4️⃣ Open Application
-http://localhost:3001
+3. Backend Setup
+cd backend
+python -m venv venv
+venv\Scripts\activate
+pip install -r requirements.txt
+uvicorn main:app --reload
+4. Frontend Setup
+cd frontend
+npm install
+npm start
+🚀 Usage
 
-Enable multi-user mode and add team members.
+Open:
 
-📚 Knowledge Base
+http://localhost:3000
 
-The system uses trusted medical sources:
+Example queries:
 
-WHO Disease Guidelines
-NIH MedlinePlus
-CDC Prevention Guides
-Open medical textbooks
-Covered Diseases:
-Dengue fever
-Malaria
-Diabetes
-Hypertension
-Stroke
-Heart disease
-Tuberculosis
-HIV
-🧠 Key Features
-🩺 Medical AI Responses
-Answers ONLY from verified documents
-No hallucinated content
-Citation-based responses
-🚨 Emergency Detection
-
-Automatically detects:
-
-Chest pain
-Breathing difficulty
-Stroke symptoms
-Severe bleeding
-Loss of consciousness
-
-Response:
-
-🚨 This may be a medical emergency. Call 108 immediately or visit nearest hospital.
-
-📑 Citation System
-
-Every answer includes:
-
-WHO / NIH document name
-Page references
-Evidence-based grounding
-🛡️ Safety Rules
-
-System strictly avoids:
-
-No diagnosis
-No prescriptions
-No dosage suggestions
-No non-medical answers
-
-Every response ends with:
-
-⚠️ This is general information only. Please consult a qualified healthcare provider.
-
-🧪 Testing Strategy
-Safety Tests
-Emergency detection validation
-No prescription enforcement
-No diagnosis responses
-RAG Tests
-Citation correctness
-Chunk optimization
-Document grounding accuracy
-Hallucination Tests
-WHO factual validation
-Medical consistency checks
+"What are dengue symptoms?"
+"I have chest pain"
+"How does malaria spread?"
+"நெஞ்சு வலி இருக்கிறது"
 📁 Project Structure
-healthdesk-p10/
-├── engine/
+Health-desk/
+├── backend/
+├── frontend/
 ├── knowledge/
-├── safety/
-├── docs/
 ├── docker-compose.yml
-└── README.md
-📅 Timeline
-Day	Work
-1–3	Setup Ollama + Docker
-4–7	Build knowledge base
-8–10	RAG + citation testing
-11–12	Safety testing
-13	Integration
-14	Final demo
-🎯 Example Output
+├── README.md
+🧪 Testing
+pytest backend/tests/
 
-User:
-What are symptoms of dengue fever?
+Check:
 
-System:
+Emergency detection
+Citation accuracy
+Safety filters
+Multilingual responses
+👥 Team
+Role	Work
+Engine Dev	Backend + RAG + API
+Knowledge Engineer	WHO/NIH documents
+Safety Engineer	Prompts + testing
+🔮 Future Scope
+Voice AI (speech-to-text)
+Mobile app
+Medical image detection
+IoT health devices integration
+⚠️ Disclaimer
 
-High fever
-Severe headache
-Joint pain
-Skin rash
+This system provides general medical information only.
+Not a replacement for professional doctors.
 
-Source: WHO Dengue Guidelines (Page 12)
+For emergencies → Call 108 (India) immediately.
 
-⚠️ This is general information only.
-
-🌍 Why This Project Matters
-Offline privacy-first healthcare AI
-Prevents unsafe hallucinated medical advice
-Uses trusted global health sources
-Works without internet dependency
-Real-world AI + healthcare simulation
-🏁 Final Output
-
-✔ Multi-user system
-✔ Offline medical AI
-✔ RAG-based knowledge system
-✔ Emergency detection
-✔ WHO/NIH citations
+❤️ Credits
+WHO (Medical Guidelines)
+NIH (Health Data)
+Ollama (Local LLMs)
+Open-source community
+<p align="center"> Built for rural healthcare accessibility ❤️ </p> ```
