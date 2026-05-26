@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>CDC Disaster First Aid and Emergency Basics</title>
+</head>
+<body style="font-family: sans-serif; padding: 20px; line-height: 1.6;">
+    <h1 style="color: #0d47a1;">CDC Disaster First Aid and Emergency Basics</h1>
+    <p><em>Official Public Health Emergency and First Aid Guidelines</em></p>
+    <hr>
+    
+    <section>
+        <h2 style="color: #1565c0;">1. Immediate Action & Scene Assessment</h2>
+        <p>Prioritize personal safety before entering an emergency zone. Assess the scene for hazards (e.g., downed power lines, structural instability, fire, toxic chemicals, or deep water).</p>
+        <p><strong>Check Responsiveness:</strong> Shout "Are you okay?", tap the victim's shoulder, and look for rise and fall of the chest (breathing) for no more than 10 seconds.</p>
+    </section>
+
+    <section>
+        <h2 style="color: #1565c0;">2. Severe Bleeding Control</h2>
+        <p>Apply firm, direct pressure on the wound site using a clean dressing, sterile gauze, or cloth. Keep constant pressure until bleeding stops.</p>
+        <p><strong>Tourniquets:</strong> For severe arterial bleeding on limbs that cannot be controlled with direct pressure, apply a tourniquet 2 to 3 inches above the wound (never directly on a joint). Tighten until bleeding stops, and record the application time.</p>
+    </section>
+
+    <section>
+        <h2 style="color: #1565c0;">3. Management of Shock</h2>
+        <p>Shock is life-threatening and can result from severe bleeding, burns, or infection.</p>
+        <ul>
+            <li>Lay the victim flat on their back.</li>
+            <li>Elevate the legs 12 inches (if no spine, head, or leg fracture is suspected).</li>
+            <li>Keep the victim warm and comfortable using blankets.</li>
+            <li>Do not administer any oral fluids or food.</li>
+        </ul>
+    </section>
+
+    <section>
+        <h2 style="color: #1565c0;">4. CPR and AED Protocol</h2>
+        <p>If the victim is unresponsive and not breathing (or only gasping):</p>
+        <ol>
+            <li>Call emergency services immediately (108 / 911).</li>
+            <li>Start high-quality chest compressions: Place hands in the center of the chest, push hard and fast at a rate of 100 to 120 compressions per minute, allowing full chest recoil.</li>
+            <li>If trained, provide 2 rescue breaths after every 30 compressions. Otherwise, perform continuous hands-only CPR.</li>
+            <li>Apply and follow the voice prompts of an Automated External Defibrillator (AED) as soon as one arrives.</li>
+        </ol>
+    </section>
+</body>
+</html>

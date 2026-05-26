@@ -1,64 +1,48 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
-from typing import List, Optional, Dict
+import uvicorn
 
-# Import local engines
-from emergency_detector import EmergencyDetector
-from reasoning_engine import ReasoningEngine
+app = FastAPI(title="HealthDesk Pro API")
 
-app = FastAPI(title="HealthDesk Core API", version="2.0.0")
-
-# Setup CORS to allow React frontend to fetch
+# CORS (frontend connection)
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Permits all origins for local development
+    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
-# Initialize engines
-detector = EmergencyDetector()
-engine = ReasoningEngine()
-
+# Request schema
 class ChatRequest(BaseModel):
     message: str
-    language: str = "en"
 
-class Citation(BaseModel):
-    src: str
-    tag: str
+# Health check
+@app.get("/")
+def home():
+    return {"status": "HealthDesk API running"}
 
-class ChatResponse(BaseModel):
-    answer: str
-    confidence: int
-    emergency: bool
-    citations: List[Citation]
-    reasoning_steps: List[str]
+# Chat endpoint (basic safe fallback)
+@app.post("/chat")
+def chat(req: ChatRequest):
+    user_msg = req.message.lower()
 
-@app.post("/api/v2/chat", response_model=ChatResponse)
-async def chat(request: ChatRequest):
-    # 1. Run Emergency Triage Detection
-    triage_data = detector.detect(request.message)
-    
-    # 2. Run Reasoning Pipeline (calls Ollama or falls back to local clinical pathways)
-    reasoning_result = engine.generate_response(request.message, triage_data)
-    
-    # 3. Format and return response
-    return ChatResponse(
-        answer=reasoning_result["answer"],
-        confidence=reasoning_result.get("confidence", 90),
-        emergency=triage_data["is_emergency"],
-        citations=reasoning_result.get("citations", [
-            {"src": "WHO General Clinical Guidelines", "tag": "Reference"}
-        ]),
-        reasoning_steps=reasoning_result.get("reasoning_steps", [
-            "Analyzed physical symptoms",
-            "Completed safety review"
-        ])
-    )
+    # Simple rule-based fallback (replace later with RAG/LLM)
+    if "fever" in user_msg:
+        return {"response": "Fever detected. Stay hydrated and consult a doctor if it persists."}
 
-@app.get("/api/v2/health")
-async def health_check():
-    return {"status": "healthy", "service": "HealthDesk Backend API"}
+    if "headache" in user_msg:
+        return {"response": "Headache may be due to stress or dehydration. Rest recommended."}
+
+    if "emergency" in user_msg:
+        return {"response": "Emergency detected. Please contact medical services immediately."}
+
+    return {
+        "response": "I am HealthDesk AI. Please describe your symptoms clearly.",
+        "confidence": 0.75
+    }
+
+# Run server
+if __name__ == "__main__":
+    uvicorn.run(app, host="0.0.0.0", port=8000)

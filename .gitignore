@@ -7,31 +7,56 @@ yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
+# Dependencies
 node_modules
+frontend/node_modules/
+
+# Builds
 dist
 dist-ssr
 .output
 .vinxi
 .tanstack/**
 .nitro
-*.local
-
-# Wrangler / Cloudflare
-.wrangler/
-.dev.vars
-
-# Editor directories and files
-.vscode/*
-!.vscode/extensions.json
-.idea
-.DS_Store
-*.suo
-*.ntvs*
-*.sw?
+frontend/build/
+frontend/.next/
 
 # Python
-backend/venv/
 venv/
+backend/venv/
 __pycache__/
 *.pyc
 
+# Database/cache
+backend/chroma_db/
+
+# AI models
+*.gguf
+*.bin
+*.pt
+*.pth
+
+# Environment
+.env
+.env.local
+.dev.vars
+
+# Wrangler / Cloudflare
+.wrangler/
+
+# Editor files
+.vscode/
+!.vscode/extensions.json
+.idea/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Logs again safety
+*.log
+
+# Misc system
+*.suo
+*.ntvs*
+*.sw?
